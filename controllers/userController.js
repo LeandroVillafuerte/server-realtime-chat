@@ -1,5 +1,8 @@
 import User from "../model/userModel.js";
 import bcrypt from "bcrypt";
+import { Buffer } from "buffer";
+import axios from "axios";
+import { randomCharacter } from "../tools/utils.js";
 
 const register = async (req, res, next) => {
   try {
@@ -43,7 +46,6 @@ const login = async (req, res, next) => {
         .status(404)
         .send({ msg: "Incorrect password or username", status: false });
 
-    console.log("sss",user.password)
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid)
       return res
@@ -58,4 +60,41 @@ const login = async (req, res, next) => {
   }
 };
 
-export { register, login };
+const getAvatars = async (req, res, next) => {
+  try {
+    const avatars = [];
+    const api = "https://source.boringavatars.com/beam/120";
+    for (let i = 0; i < 4; i++) {
+      const image = await axios.get(
+        `${api}/${randomCharacter(7) + Math.round(Math.random() * 1000)}`
+      );
+      const buffer = new Buffer.from(`${image.data}`);
+      avatars.push(buffer.toString("base64"));
+    }
+    return res
+      .status(200)
+      .json({ msg: "avatars fetched", avatars, status: true });
+  } catch (e) {
+    next(e);
+  }
+};
+
+const setAvatar = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const avatarImage = req.body.image;
+    const userData = await User.findByIdAndUpdate(userId, {
+      isAvatarImageSet: true,
+      avatarImage,
+    });
+    return res.status(200).json({
+      msg: "User updated!",
+      isAvatarImageSet: userData.isAvatarImageSet,
+      avatarImage: userData.avatarImage,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export { register, login, getAvatars, setAvatar };
