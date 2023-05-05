@@ -3,6 +3,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { route as userRoutes } from "./routes/userRoutes.js";
+import { route as messagesRoutes } from "./routes/messagesRoutes.js"
 import morgan from "morgan";
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 app.use("/api/auth", userRoutes);
+app.use("/api/messages",messagesRoutes)
 
 mongoose
   .connect(process.env.MONGO_URL, {
