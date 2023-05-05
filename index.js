@@ -3,8 +3,11 @@ import cors from "cors";
 import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { route as userRoutes } from "./routes/userRoutes.js";
-import { route as messagesRoutes } from "./routes/messagesRoutes.js"
+import { route as messagesRoutes } from "./routes/messagesRoutes.js";
 import morgan from "morgan";
+import { Server } from "socket.io";
+
+
 
 const app = express();
 dotenv.config();
@@ -14,7 +17,8 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 app.use("/api/auth", userRoutes);
-app.use("/api/messages",messagesRoutes)
+app.use("/api/messages", messagesRoutes);
+
 
 mongoose
   .connect(process.env.MONGO_URL, {
@@ -26,4 +30,27 @@ mongoose
 
 const server = app.listen(process.env.PORT, () => {
   console.log(`Server Started on Port %c${process.env.PORT}`, "color:blue");
+});
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    credentials: true,
+  },
+});
+
+global.onlineUsers = new Map();
+
+io.on("connection", (socket) => {
+  console.log("new connection");
+  global.chatSocket = socket;
+  socket.on("add-user", (userId) => {
+    onlineUsers.set(userId, socket.id);
+  });
+  socket.on("send-msg", (data) => {
+    const sendUserSocket = onlineUsers.get(data.to);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("msg-receive", data.msg);
+    }
+  });
 });
