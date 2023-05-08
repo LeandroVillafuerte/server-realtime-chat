@@ -18,7 +18,6 @@ const addMessage = async (req, res, next) => {
 const getAllMessages = async (req, res, next) => {
   try {
     const { from, to } = req.params;
-    console.log("from",from,"to",to)
     const messages = await Message.find({
       users: {
         $all: [from, to],
@@ -30,7 +29,6 @@ const getAllMessages = async (req, res, next) => {
         message: msg.message.text,
       };
     });
-    console.log(projectMessages)
     return res.status(200).json({ projectMessages });
   } catch (e) {
     next(e);
