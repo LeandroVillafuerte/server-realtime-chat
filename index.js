@@ -53,4 +53,10 @@ io.on("connection", (socket) => {
       socket.to(sendUserSocket).emit("msg-receive", data.message);
     }
   });
+  socket.on("contact-added",(data)=>{
+    const sendUserSocket = onlineUsers.get(data.to);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("contact-receive", data.contact);
+    }
+  })
 });

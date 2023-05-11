@@ -83,10 +83,15 @@ const setAvatar = async (req, res, next) => {
   try {
     const userId = req.params.id;
     const avatarImage = req.body.image;
-    const userData = await User.findByIdAndUpdate(userId, {
-      isAvatarImageSet: true,
-      avatarImage,
-    });
+    const userData = await User.findByIdAndUpdate(
+      userId,
+      {
+        isAvatarImageSet: true,
+        avatarImage,
+      },
+      { new: true }
+    );
+    console.log(userData);
     return res.status(200).json({
       msg: "User updated!",
       isAvatarImageSet: userData.isAvatarImageSet,
@@ -105,7 +110,6 @@ const getContacts = async (req, res, next) => {
     const users = await User.find({
       _id: { $in: contacts.contacts },
     }).select(["email", "username", "avatarImage", "_id"]);
-    console.log(users);
     return res.status(200).json({ msg: "users fetched", users });
   } catch (e) {
     next(e);
@@ -122,8 +126,8 @@ const addContact = async (req, res, next) => {
     if (!contact) {
       return res.status(400).json({ msg: "This user doesn't exist." });
     }
-    if(contact._id == currentUserId){
-      return res.status(400).json({msg:"Invalid contact."})
+    if (contact._id == currentUserId) {
+      return res.status(400).json({ msg: "Invalid contact." });
     }
     if (contact.contacts.includes(currentUserId)) {
       return res
@@ -133,18 +137,22 @@ const addContact = async (req, res, next) => {
 
     const updatedContact = await User.findByIdAndUpdate(
       { _id: contact._id },
-      { $push: { contacts: currentUserId } }
-    );
+      { $push: { contacts: currentUserId } },
+      { new: true }
+    ).select(["email", "username", "avatarImage", "_id","contacts"]);
     if (!updatedContact)
       return res.status(400).json({ msg: "Unexpected Error." });
 
     const updatedUser = await User.findByIdAndUpdate(
       { _id: currentUserId },
-      { $push: { contacts: contact._id } }
-    ).select(["_id", "contacts"]);
+      { $push: { contacts: contact._id } },
+      { new: true }
+    ).select(["email", "username", "avatarImage", "_id", "contacts"]);
     if (!updatedUser) return res.status(400).json({ msg: "Unexpected Error." });
 
-    return res.status(200).json({ msg: "User added.", updatedUser });
+    return res
+      .status(200)
+      .json({ msg: "User added.", updatedUser, updatedContact});
   } catch (e) {
     next(e);
   }
