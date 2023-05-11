@@ -28,6 +28,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  contacts: {
+    type: Array,
+    default: [],
+  },
 });
 
 export default mongoose.model("Users", UserSchema);

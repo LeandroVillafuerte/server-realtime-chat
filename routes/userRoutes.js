@@ -5,6 +5,7 @@ import {
   getAvatars,
   setAvatar,
   getContacts,
+  addContact,
 } from "../controllers/userController.js";
 
 const route = Router();
@@ -14,5 +15,8 @@ route.post("/login", login);
 route.get("/setavatar", getAvatars);
 route.post("/setavatar/:id", setAvatar);
 route.get("/allusers/:id", getContacts);
+route.post("/addcontact", addContact);
+
+
 
 export { route };

@@ -99,13 +99,55 @@ const setAvatar = async (req, res, next) => {
 
 const getContacts = async (req, res, next) => {
   try {
-    const users = await User.find({ _id: { $ne: req.params.id } }).select([
-      "email","username","avatarImage","_id"
+    const contacts = await User.findOne({ _id: req.params.id }).select([
+      "contacts",
     ]);
-    return res.status(200).json({msg:"users fetched", users})
+    const users = await User.find({
+      _id: { $in: contacts.contacts },
+    }).select(["email", "username", "avatarImage", "_id"]);
+    console.log(users);
+    return res.status(200).json({ msg: "users fetched", users });
   } catch (e) {
     next(e);
   }
 };
 
-export { register, login, getAvatars, setAvatar, getContacts };
+const addContact = async (req, res, next) => {
+  try {
+    const { currentUserId, newContact } = req.body;
+    const contact = await User.findOne({
+      $or: [{ username: newContact }, { email: newContact }],
+    }).select(["_id", "contacts"]);
+
+    if (!contact) {
+      return res.status(400).json({ msg: "This user doesn't exist." });
+    }
+    if(contact._id == currentUserId){
+      return res.status(400).json({msg:"Invalid contact."})
+    }
+    if (contact.contacts.includes(currentUserId)) {
+      return res
+        .status(400)
+        .json({ msg: "This user is already your contact." });
+    }
+
+    const updatedContact = await User.findByIdAndUpdate(
+      { _id: contact._id },
+      { $push: { contacts: currentUserId } }
+    );
+    if (!updatedContact)
+      return res.status(400).json({ msg: "Unexpected Error." });
+
+    const updatedUser = await User.findByIdAndUpdate(
+      { _id: currentUserId },
+      { $push: { contacts: contact._id } }
+    ).select(["_id", "contacts"]);
+    if (!updatedUser) return res.status(400).json({ msg: "Unexpected Error." });
+
+    return res.status(200).json({ msg: "User added.", updatedUser });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export { register, login, getAvatars, setAvatar, getContacts, addContact };
