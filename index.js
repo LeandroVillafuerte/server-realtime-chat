@@ -7,8 +7,6 @@ import { route as messagesRoutes } from "./routes/messagesRoutes.js";
 import morgan from "morgan";
 import { Server } from "socket.io";
 
-
-
 const app = express();
 dotenv.config();
 
@@ -19,22 +17,24 @@ app.use(morgan("dev"));
 app.use("/api/auth", userRoutes);
 app.use("/api/messages", messagesRoutes);
 
-
 mongoose
-  .connect(process.env.MONGO_URL, {
+  .connect(process.env.MONGO_URL || process.env.MONGO_URL_LOCAL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => console.info("%cDB Connection Successful", "color:green"))
   .catch((err) => console.error(err.message));
 
-const server = app.listen(process.env.PORT, () => {
-  console.log(`Server Started on Port %c${process.env.PORT}`, "color:blue");
+const server = app.listen(process.env.PORT || 5000, () => {
+  console.log(
+    `Server Started on Port %c${process.env.PORT || 5000}`,
+    "color:blue"
+  );
 });
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.CORS || "http://localhost:3000",
     credentials: true,
   },
 });
@@ -53,10 +53,10 @@ io.on("connection", (socket) => {
       socket.to(sendUserSocket).emit("msg-receive", data.message);
     }
   });
-  socket.on("contact-added",(data)=>{
+  socket.on("contact-added", (data) => {
     const sendUserSocket = onlineUsers.get(data.to);
     if (sendUserSocket) {
       socket.to(sendUserSocket).emit("contact-receive", data.contact);
     }
-  })
+  });
 });
