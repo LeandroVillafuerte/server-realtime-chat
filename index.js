@@ -17,6 +17,12 @@ app.use(morgan("dev"));
 app.use("/api/auth", userRoutes);
 app.use("/api/messages", messagesRoutes);
 
+app.use(
+  cors({
+    origin: process.env.CORS,
+  })
+)
+
 mongoose
   .connect(process.env.MONGO_URL || process.env.MONGO_URL_LOCAL, {
     useNewUrlParser: true,
