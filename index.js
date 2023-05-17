@@ -34,10 +34,12 @@ const server = app.listen(process.env.PORT || 5000, () => {
 
 const io = new Server(server, {
   cors: {
-    origin:"https://leandrovillafuerte.github.io/app-realtime-chat" || "http://localhost:3000",
+    origin:"https://leandrovillafuerte.github.io/app-realtime-chat",
+    methods: ["GET", "POST"],
     credentials: true,
   },
 });
+
 
 global.onlineUsers = new Map();
 
