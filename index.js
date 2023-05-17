@@ -34,7 +34,8 @@ const server = app.listen(process.env.PORT || 5000, () => {
 
 const io = new Server(server, {
   cors: {
-    origin:"https://leandrovillafuerte.github.io/app-realtime-chat",
+    origin: process.env.CORS,
+    methods: ["GET","POST"]
   },
 });
 
