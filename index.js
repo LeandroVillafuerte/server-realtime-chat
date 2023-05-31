@@ -4,9 +4,9 @@ import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import { route as userRoutes } from "./routes/userRoutes.js";
 import { route as messagesRoutes } from "./routes/messagesRoutes.js";
+import { route as queryRoutes } from "./routes/queryRoute.js";
 import morgan from "morgan";
 import { Server } from "socket.io";
-import cron from "node-cron";
 
 const app = express();
 dotenv.config();
@@ -17,6 +17,7 @@ app.use(morgan("dev"));
 
 app.use("/api/auth", userRoutes);
 app.use("/api/messages", messagesRoutes);
+app.use("/api/query", queryRoutes);
 
 app.use(
   cors({
@@ -66,8 +67,4 @@ io.on("connection", (socket) => {
       socket.to(sendUserSocket).emit("contact-receive", data.contact);
     }
   });
-});
-
-cron.schedule("*/10 * * * *", () => {
-  console.log(new Date().toString());
 });
