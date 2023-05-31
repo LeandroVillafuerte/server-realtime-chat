@@ -6,6 +6,7 @@ import { route as userRoutes } from "./routes/userRoutes.js";
 import { route as messagesRoutes } from "./routes/messagesRoutes.js";
 import morgan from "morgan";
 import { Server } from "socket.io";
+import cron from "node-cron";
 
 const app = express();
 dotenv.config();
@@ -21,7 +22,7 @@ app.use(
   cors({
     origin: process.env.CORS,
   })
-)
+);
 
 mongoose
   .connect(process.env.MONGO_URL || process.env.MONGO_URL_LOCAL, {
@@ -41,7 +42,7 @@ const server = app.listen(process.env.PORT || 5000, () => {
 const io = new Server(server, {
   cors: {
     origin: process.env.CORS,
-    methods: ["GET","POST"]
+    methods: ["GET", "POST"],
   },
 });
 
@@ -65,4 +66,8 @@ io.on("connection", (socket) => {
       socket.to(sendUserSocket).emit("contact-receive", data.contact);
     }
   });
+});
+
+cron.schedule("*/10 * * * *", () => {
+  console.log(new Date().toString());
 });
