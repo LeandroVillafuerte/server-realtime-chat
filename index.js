@@ -24,6 +24,7 @@ app.use(
     origin: [
       process.env.CORS,
       "https://cron-chat-pp21fhk8e-leandrovillafuerte.vercel.app/",
+      "https://cron-chat-api.vercel.app/",
     ],
   })
 );
