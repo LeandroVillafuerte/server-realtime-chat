@@ -21,7 +21,10 @@ app.use("/api/query", queryRoutes);
 
 app.use(
   cors({
-    origin: process.env.CORS,
+    origin: [
+      process.env.CORS,
+      "https://cron-chat-pp21fhk8e-leandrovillafuerte.vercel.app/",
+    ],
   })
 );
 
