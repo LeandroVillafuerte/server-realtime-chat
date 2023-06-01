@@ -77,7 +77,7 @@ cron.schedule("*/10 * * * *", () => {
       const response = await axios.get(
         process.env.DEV
           ? "http://localhost:5500/api/query/query"
-          : "https://chatify-api-vjqn.onrender.com/query/query"
+          : "https://chatify-api-vjqn.onrender.com/api/query/query"
       );
       console.log(response.data.msg);
     } catch (e) {
