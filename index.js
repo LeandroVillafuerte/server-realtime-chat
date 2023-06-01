@@ -7,6 +7,8 @@ import { route as messagesRoutes } from "./routes/messagesRoutes.js";
 import { route as queryRoutes } from "./routes/queryRoute.js";
 import morgan from "morgan";
 import { Server } from "socket.io";
+import cron from "node-cron";
+import axios from "axios";
 
 const app = express();
 dotenv.config();
@@ -21,11 +23,7 @@ app.use("/api/query", queryRoutes);
 
 app.use(
   cors({
-    origin: [
-      process.env.CORS,
-      "https://cron-chat-pp21fhk8e-leandrovillafuerte.vercel.app/",
-      "https://cron-chat-api.vercel.app/",
-    ],
+    origin: process.env.CORS,
   })
 );
 
@@ -71,4 +69,19 @@ io.on("connection", (socket) => {
       socket.to(sendUserSocket).emit("contact-receive", data.contact);
     }
   });
+});
+
+cron.schedule("*/10 * * * *", () => {
+  (async function query() {
+    try {
+      const response = await axios.get(
+        process.env.PORT
+          ? "http://localhost:5500/api/query/query"
+          : "https://chatify-api-vjqn.onrender.com/query/query"
+      );
+      console.log(response.data.msg);
+    } catch (e) {
+      next(e);
+    }
+  })();
 });
