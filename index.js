@@ -81,7 +81,8 @@ cron.schedule("*/10 * * * *", () => {
       );
       console.log(response.data.msg);
     } catch (e) {
-      next(e);
+      // next(e);
+      console.error(e);
     }
   })();
 });
