@@ -24,7 +24,7 @@ app.use("/api/query", queryRoutes);
 app.use(
   cors({
     origin: process.env.CORS,
-  })
+  }),
 );
 
 mongoose
@@ -38,7 +38,7 @@ mongoose
 const server = app.listen(process.env.PORT || 5000, () => {
   console.log(
     `Server Started on Port %c${process.env.PORT || 5000}`,
-    "color:blue"
+    "color:blue",
   );
 });
 
@@ -71,18 +71,18 @@ io.on("connection", (socket) => {
   });
 });
 
-cron.schedule("*/10 * * * *", () => {
-  (async function query() {
-    try {
-      const response = await axios.get(
-        process.env.DEV
-          ? "http://localhost:5500/api/query/query"
-          : "https://chatify-api-vjqn.onrender.com/api/query/query"
-      );
-      console.log(response.data.msg);
-    } catch (e) {
-      // next(e);
-      console.error(e);
-    }
-  })();
-});
+// cron.schedule("*/10 * * * *", () => {
+//   (async function query() {
+//     try {
+//       const response = await axios.get(
+//         process.env.DEV
+//           ? "http://localhost:5500/api/query/query"
+//           : "https://chatify-api-vjqn.onrender.com/api/query/query"
+//       );
+//       console.log(response.data.msg);
+//     } catch (e) {
+//       // next(e);
+//       console.error(e);
+//     }
+//   })();
+// });
